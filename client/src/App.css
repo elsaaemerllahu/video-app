@@ -1,55 +1,131 @@
-/* /client/src/App.css */
-body, html, .App {
+/* Reset */
+body, html {
   margin: 0;
   padding: 0;
-  height: 100%;
-  font-family: 'Segoe UI', sans-serif;
-  background-color: #0f172a;
+  box-sizing: border-box;
+  font-family: 'Poppins', 'Outfit', sans-serif;
+  background: linear-gradient(135deg, #1e1e2f, #12121a);
   color: white;
+  min-height: 100vh;
+}
+.glass-container {
+} 
+/* Container */
+.app-container {
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
-}
-
-.container {
-  text-align: center;
   padding: 2rem;
 }
 
-.title {
-  font-size: 2.5rem;
-  margin-bottom: 2rem;
-  font-weight: 600;
-  color: #e2e8f0;
+/* Glass Panel */
+.glass-box {
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(20px);
+  border-radius: 1.5rem;
+  padding: 2rem;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+  max-width: 900px;
+  width: 100%;
+  text-align: center;
 }
 
-.video-wrapper {
+/* Buttons & Inputs */
+input {
+  padding: 0.8rem;
+  font-size: 1rem;
+  background: #222;
+  color: white;
+  border: none;
+  border-radius: 10px;
+  margin-right: 1rem;
+  outline: none;
+}
+
+button {
+  padding: 0.8rem 1.4rem;
+  border: none;
+  border-radius: 10px;
+  background: #6366f1;
+  color: white;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+button:hover {
+  background: #4f46e5;
+}
+
+/* Users List */
+ul {
+  list-style: none;
+  padding: 0;
+  margin-top: 1rem;
   display: flex;
-  gap: 1.5rem;
-  justify-content: center;
-  margin-bottom: 2rem;
   flex-wrap: wrap;
 }
 
-.video-box {
-  width: 300px;
-  max-width: 90vw;
-  border-radius: 1rem;
-  background-color: black;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
-}
-
-.call-button {
-  background-color: #3b82f6;
-  color: white;
-  border: none;
-  padding: 0.8rem 2rem;
-  font-size: 1rem;
-  border-radius: 0.75rem;
+li {
+  background: #27273a;
+  padding: 0.5rem 1.2rem;
+  margin: 0.5rem;
+  border-radius: 999px;
   cursor: pointer;
-  transition: background-color 0.3s ease;
+  color: #60a5fa;
+  transition: background 0.2s ease;
 }
 
-.call-button:hover {
-  background-color: #2563eb;
+li:hover {
+  background: #1e1e2f;
+}
+
+/* Video Area */
+.video-area {
+  margin-top: 2rem;
+  display: flex;
+  justify-content: center;
+  gap: 2rem;
+  flex-wrap: wrap;
+}
+
+video {
+  width: 600px;
+  border-radius: 1rem;
+  border: 2px solid #333;
+  background: black;
+}
+
+/* Status */
+.status-text {
+  font-weight: 500;
+  margin-top: 1rem;
+  font-size: 1.1rem;
+}
+
+/* Modal */
+.modal {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.75);
+  backdrop-filter: blur(5px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  flex-direction: column;
+}
+
+.modal p {
+  font-size: 1.3rem;
+  margin-bottom: 1.5rem;
+}
+
+.modal button {
+  margin: 0.5rem;
+}
+
+.modal .decline {
+  background-color: #ef4444;
 }

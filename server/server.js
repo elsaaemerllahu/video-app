@@ -37,6 +37,9 @@ wss.on("connection", (ws) => {
             ...data,
             from: currentUser // add sender info
           }));
+          console.log("Received offer for:", data.target);
+console.log("Connected users:", Object.keys(users));
+
         }
         break;
     }

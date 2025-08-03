@@ -1,4 +1,5 @@
 import { useRef, useState } from 'react';
+import './App.css';
 
 const SERVER_URL = window.location.hostname === 'localhost'
   ? 'ws://localhost:3000'
@@ -14,6 +15,7 @@ function App() {
   const [users, setUsers] = useState([]);
   const [loggedIn, setLoggedIn] = useState(false);
   const [status, setStatus] = useState('');
+  const [incomingOffer, setIncomingOffer] = useState(null);
 
   const localVideo = useRef();
   const remoteVideo = useRef();
@@ -32,38 +34,24 @@ function App() {
 
     ws.onmessage = async (msg) => {
       const data = JSON.parse(msg.data);
+
       if (data.type === 'users') {
         setUsers(data.users.filter(u => u !== username));
       }
+
       if (data.type === 'offer') {
-        const accept = window.confirm(`Incoming call from ${data.from}. Accept?`);
-        if (!accept) return;
-
-        currentTarget.current = data.from;
-        await startLocalStream();
-
-        setupPeer();
-
-        await peerConnection.current.setRemoteDescription(new RTCSessionDescription(data.offer));
-        candidateQueue.current.forEach(async candidate => {
-          await peerConnection.current.addIceCandidate(new RTCIceCandidate(candidate));
-        });
-
-        const answer = await peerConnection.current.createAnswer();
-        await peerConnection.current.setLocalDescription(answer);
-
-        ws.send(JSON.stringify({ type: 'answer', answer, target: data.from }));
-        candidateQueue.current = [];
+        setIncomingOffer(data);
       }
+
       if (data.type === 'answer') {
         await peerConnection.current.setRemoteDescription(new RTCSessionDescription(data.answer));
         setStatus('Call connected ✔️');
-
         candidateQueue.current.forEach(async candidate => {
           await peerConnection.current.addIceCandidate(new RTCIceCandidate(candidate));
         });
         candidateQueue.current = [];
       }
+
       if (data.type === 'candidate') {
         if (peerConnection.current && peerConnection.current.remoteDescription) {
           await peerConnection.current.addIceCandidate(new RTCIceCandidate(data.candidate));
@@ -74,6 +62,32 @@ function App() {
     };
 
     setSocket(ws);
+  };
+
+  const acceptCall = async () => {
+    const data = incomingOffer;
+    setIncomingOffer(null);
+    currentTarget.current = data.from;
+    await startLocalStream();
+    setupPeer();
+
+    await peerConnection.current.setRemoteDescription(new RTCSessionDescription(data.offer));
+
+    candidateQueue.current.forEach(async candidate => {
+      await peerConnection.current.addIceCandidate(new RTCIceCandidate(candidate));
+    });
+
+    const answer = await peerConnection.current.createAnswer();
+    await peerConnection.current.setLocalDescription(answer);
+
+    socket.send(JSON.stringify({ type: 'answer', answer, target: data.from }));
+    candidateQueue.current = [];
+    setStatus(`In call with ${data.from}`);
+  };
+
+  const declineCall = () => {
+    setIncomingOffer(null);
+    setStatus(`Call from ${incomingOffer.from} declined`);
   };
 
   const startLocalStream = async () => {
@@ -119,35 +133,46 @@ function App() {
   };
 
   return (
-    <div style={{ padding: 40, fontFamily: 'sans-serif', color: '#fff', background: '#111', minHeight: '100vh' }}>
-      {!loggedIn ? (
-        <div>
-          <h2>Start a Call</h2>
-          <input
-            placeholder="Enter username"
-            value={username}
-            onChange={e => setUsername(e.target.value)}
-          />
-          <button onClick={handleLogin}>Login</button>
-        </div>
-      ) : (
-        <div>
-          <h3>Status: {status}</h3>
-          <h2>Online Users</h2>
-          <ul>
-            {users.length === 0 && <li>No other users online</li>}
-            {users.map(user => (
-              <li key={user} onClick={() => startCall(user)} style={{ color: '#4f46e5', cursor: 'pointer' }}>
-                {user}
-              </li>
-            ))}
-          </ul>
-          <div style={{ display: 'flex', gap: '1rem', marginTop: 20 }}>
-            <video ref={localVideo} autoPlay playsInline muted style={{ width: '45%' }} />
-            <video ref={remoteVideo} autoPlay playsInline style={{ width: '45%' }} />
-          </div>
-        </div>
-      )}
+    <div className='app-container'>
+      <div className="glass-container">
+{!loggedIn ? (
+  <>
+    <h2>Join the Call</h2>
+    <input
+      placeholder="Enter username"
+      value={username}
+      onChange={e => setUsername(e.target.value)}
+    />
+    <button onClick={handleLogin}>Login</button>
+  </>
+) : (
+  <>
+    <h3 className="status-text">Status: {status}</h3>
+    <h2>Available Users</h2>
+    <ul>
+      {users.length === 0 && <li>No one online</li>}
+      {users.map(user => (
+        <li key={user} onClick={() => startCall(user)}>{user}</li>
+      ))}
+    </ul>
+    <div className="video-area">
+      <video ref={localVideo} autoPlay playsInline muted />
+      <video ref={remoteVideo} autoPlay playsInline />
+    </div>
+  </>
+)}
+
+
+{incomingOffer && (
+  <div className="modal">
+    <p>Incoming call from <strong>{incomingOffer.from}</strong></p>
+    <button onClick={acceptCall}>Accept</button>
+    <button onClick={declineCall} className="decline">Decline</button>
+  </div>
+)}
+
+      </div>
+
     </div>
   );
 }

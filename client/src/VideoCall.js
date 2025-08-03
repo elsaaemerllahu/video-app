@@ -17,25 +17,44 @@ const VideoCall = () => {
   };
 
   useEffect(() => {
+  socket.on('connect', () => {
+    console.log('Connected to server with ID:', socket.id);
+  });
+
+  socket.on('offer', (offer) => {
+    console.log('Received offer:', offer);
+  });
+
+  socket.on('room-users', (count) => {
+    console.log('Room user count:', count);
+  });
+
+  return () => {
+    socket.off('connect');
+    socket.off('offer');
+    socket.off('room-users');
+  };
+}, []);
+
+  useEffect(() => {
     if (!joined) return;
 
     socket.emit('join', roomId);
 
-socket.on('offer', async (offer) => {
-  setCallStarted(true); // ✅ mark call as started even if second user didn't click anything
+    socket.on('offer', async (offer) => {
+      setCallStarted(true); // ✅ mark call as started even if second user didn't click anything
 
-  peerConnection.current = createPeerConnection();
-  await peerConnection.current.setRemoteDescription(new RTCSessionDescription(offer));
+      peerConnection.current = createPeerConnection();
+      await peerConnection.current.setRemoteDescription(new RTCSessionDescription(offer));
 
-  const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
-  stream.getTracks().forEach(track => peerConnection.current.addTrack(track, stream));
-  localVideo.current.srcObject = stream;
+      const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+      stream.getTracks().forEach(track => peerConnection.current.addTrack(track, stream));
+      localVideo.current.srcObject = stream;
 
-  const answer = await peerConnection.current.createAnswer();
-  await peerConnection.current.setLocalDescription(answer);
-  socket.emit('answer', { roomId, answer });
-});
-
+      const answer = await peerConnection.current.createAnswer();
+      await peerConnection.current.setLocalDescription(answer);
+      socket.emit('answer', { roomId, answer });
+    });
 
     socket.on('answer', async (answer) => {
       await peerConnection.current.setRemoteDescription(new RTCSessionDescription(answer));
@@ -85,6 +104,8 @@ socket.on('offer', async (offer) => {
 
   const handleJoinRoom = () => {
     if (roomId.trim() !== '') {
+      socket.emit('join', roomId); // move this here immediately
+
       setJoined(true);
     } else {
       alert('Please enter a room ID');

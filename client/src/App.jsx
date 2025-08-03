@@ -2,7 +2,7 @@ import { useRef, useState } from 'react';
 
 const SERVER_URL = window.location.hostname === 'localhost'
   ? 'ws://localhost:3000'
-  : `wss://https://video-app-z3ae.onrender.com/`;
+  : 'wss://https://video-app-z3ae.onrender.com';
 
 const config = {
   iceServers: [{ urls: 'stun:stun.l.google.com:19302' }]

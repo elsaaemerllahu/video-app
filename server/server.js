@@ -10,7 +10,10 @@ const wss = new WebSocket.Server({ server });
 let users = {}; // Map of username -> WebSocket instance
 
 // Serve frontend from "/"
-app.use(express.static(path.join(__dirname, "public")));
+app.use(express.static(path.join(__dirname, "../client/build")));
+app.get("*", (req, res) => {
+  res.sendFile(path.join(__dirname, "../client/build/index.html"));
+});
 
 wss.on("connection", (ws) => {
   let currentUser = null;

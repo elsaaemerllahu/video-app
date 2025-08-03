@@ -1,4 +1,3 @@
-// /server/index.js
 const express = require('express');
 const http = require('http');
 const socketIO = require('socket.io');
@@ -6,6 +5,10 @@ const cors = require('cors');
 
 const app = express();
 app.use(cors());
+
+app.get('/', (req, res) => {
+  res.send('WebRTC Signaling Server is running');
+});
 
 const server = http.createServer(app);
 const io = socketIO(server, {

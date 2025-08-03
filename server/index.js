@@ -20,15 +20,21 @@ const roomOffers = {}; // store latest offer per room
 io.on('connection', socket => {
   console.log('New user connected:', socket.id);
 
-  socket.on('join', (roomId) => {
-    socket.join(roomId);
-    console.log(`Socket ${socket.id} joined room ${roomId}`);
+socket.on('join', (roomId) => {
+  socket.join(roomId);
+  console.log(`Socket ${socket.id} joined room ${roomId}`);
 
-    // if offer already exists, send it to new joiner
-    if (roomOffers[roomId]) {
-      socket.emit('offer', roomOffers[roomId]);
-    }
-  });
+  // Emit room user count
+  const room = io.sockets.adapter.rooms.get(roomId);
+  const userCount = room ? room.size : 0;
+  io.to(roomId).emit('room-users', userCount);
+
+  // Send offer if exists
+  if (roomOffers[roomId]) {
+    socket.emit('offer', roomOffers[roomId]);
+  }
+});
+
 
   socket.on('offer', ({ roomId, offer }) => {
     roomOffers[roomId] = offer;
@@ -43,9 +49,18 @@ io.on('connection', socket => {
     socket.to(roomId).emit('candidate', candidate);
   });
 
-  socket.on('disconnect', () => {
-    console.log('User disconnected:', socket.id);
-  });
+socket.on('disconnect', () => {
+  console.log('User disconnected:', socket.id);
+  
+  // Loop through all rooms this socket was part of
+  for (const [roomId, room] of io.sockets.adapter.rooms) {
+    if (room.has(socket.id)) {
+      const newCount = room.size - 1;
+      io.to(roomId).emit('room-users', newCount);
+    }
+  }
+});
+
 
   socket.on('answer', ({ roomId, answer }) => {
   delete roomOffers[roomId]; // clear offer once answered

@@ -21,18 +21,21 @@ const VideoCall = () => {
 
     socket.emit('join', roomId);
 
-    socket.on('offer', async (offer) => {
-      peerConnection.current = createPeerConnection();
-      await peerConnection.current.setRemoteDescription(new RTCSessionDescription(offer));
+socket.on('offer', async (offer) => {
+  setCallStarted(true); // ✅ mark call as started even if second user didn't click anything
 
-      const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
-      stream.getTracks().forEach(track => peerConnection.current.addTrack(track, stream));
-      localVideo.current.srcObject = stream;
+  peerConnection.current = createPeerConnection();
+  await peerConnection.current.setRemoteDescription(new RTCSessionDescription(offer));
 
-      const answer = await peerConnection.current.createAnswer();
-      await peerConnection.current.setLocalDescription(answer);
-      socket.emit('answer', { roomId, answer });
-    });
+  const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+  stream.getTracks().forEach(track => peerConnection.current.addTrack(track, stream));
+  localVideo.current.srcObject = stream;
+
+  const answer = await peerConnection.current.createAnswer();
+  await peerConnection.current.setLocalDescription(answer);
+  socket.emit('answer', { roomId, answer });
+});
+
 
     socket.on('answer', async (answer) => {
       await peerConnection.current.setRemoteDescription(new RTCSessionDescription(answer));

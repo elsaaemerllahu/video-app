@@ -1,3 +1,20 @@
+const express = require('express');
+const http = require('http');
+const socketIO = require('socket.io');
+const cors = require('cors');
+
+const app = express();
+app.use(cors());
+
+app.get('/', (req, res) => {
+  res.send('WebRTC Signaling Server is running');
+});
+
+const server = http.createServer(app);
+const io = socketIO(server, {
+  cors: { origin: '*' }
+});
+
 io.on('connection', socket => {
   console.log('New user connected:', socket.id);
 
@@ -21,4 +38,10 @@ io.on('connection', socket => {
   socket.on('disconnect', () => {
     console.log('User disconnected:', socket.id);
   });
+});
+
+
+const PORT = process.env.PORT;
+server.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
 });

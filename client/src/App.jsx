@@ -1,8 +1,8 @@
-import { useEffect, useRef, useState } from 'react';
+import { useRef, useState } from 'react';
 
 const SERVER_URL = window.location.hostname === 'localhost'
   ? 'ws://localhost:3000'
-  : `wss://${window.location.host}`;
+  : `wss://https://video-app-z3ae.onrender.com/`;
 
 const config = {
   iceServers: [{ urls: 'stun:stun.l.google.com:19302' }]

@@ -1,0 +1,55 @@
+/* /client/src/App.css */
+body, html, .App {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  font-family: 'Segoe UI', sans-serif;
+  background-color: #0f172a;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.container {
+  text-align: center;
+  padding: 2rem;
+}
+
+.title {
+  font-size: 2.5rem;
+  margin-bottom: 2rem;
+  font-weight: 600;
+  color: #e2e8f0;
+}
+
+.video-wrapper {
+  display: flex;
+  gap: 1.5rem;
+  justify-content: center;
+  margin-bottom: 2rem;
+  flex-wrap: wrap;
+}
+
+.video-box {
+  width: 300px;
+  max-width: 90vw;
+  border-radius: 1rem;
+  background-color: black;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+}
+
+.call-button {
+  background-color: #3b82f6;
+  color: white;
+  border: none;
+  padding: 0.8rem 2rem;
+  font-size: 1rem;
+  border-radius: 0.75rem;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.call-button:hover {
+  background-color: #2563eb;
+}
